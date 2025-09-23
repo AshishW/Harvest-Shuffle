@@ -1,0 +1,65 @@
+# Node / JS
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+.pnpm/
+
+# pnpm store (if used locally)
+.pnpm-store/
+.pnpmfile.cjs
+
+# Build / output
+dist/
+out/
+release/
+build/
+*.dmg
+*.AppImage
+*.exe
+*.nupkg
+*.zip
+*.tar.gz
+*.asar
+
+# Editor / OS files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+.DS_Store
+Thumbs.db
+
+# Environment / secrets
+.env
+.env.*.local
+.env.local
+secrets.json
+credentials.json
+*.key
+*.pem
+
+# Logs, caches, coverage
+*.log
+logs/
+coverage/
+.nyc_output/
+.cache/
+.parcel-cache/
+eslintcache
+tsserver.log
+test-results/
+
+# Misc
+*.bak
+*.tmp
+*.swp
+*.swo
+
+# JetBrains
+.idea/

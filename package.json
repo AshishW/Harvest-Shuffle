@@ -1,0 +1,25 @@
+{
+    "name": "harvest-shuffle",
+    "version": "0.1.0",
+    "description": "Harvest Shuffle - Electron",
+    "main": "main.js",
+    "scripts": {
+        "start": "electron .",
+        "pack": "electron-builder --dir",
+        "dist": "electron-builder"
+    },
+    "devDependencies": {
+        "electron": "^26.6.10",
+        "electron-builder": "^24.13.3"
+    },
+    "build": {
+        "appId": "com.example.harvestshuffle",
+        "files": [
+            "**/*"
+        ]
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "type": "commonjs"
+}
