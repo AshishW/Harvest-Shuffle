@@ -68,7 +68,7 @@
         }
 
         .title-banner {
-            background-color: var(--button-bg);
+            background-color: #ab6d0287;
             border: 8px solid var(--button-border);
             border-style: outset;
             padding: 10px 20px;
@@ -244,6 +244,40 @@
         }
 
 
+        /* Settings improvements */
+        .settings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: stretch;
+            margin-top: 12px;
+        }
+        .setting-button {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 14px;
+            width: 100%;
+            max-width: 320px;
+            margin: 0 auto;
+            font-size: 0.95em;
+        }
+        .setting-button .icon {
+            font-size: 1.25em;
+            width: 28px;
+            text-align: left;
+        }
+        .setting-button .label {
+            flex: 1;
+            text-align: left;
+            padding-left: 6px;
+        }
+        .setting-button .state {
+            min-width: 48px;
+            text-align: right;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -279,20 +313,35 @@
     <div id="help-modal" class="modal">
         <div class="modal-content">
             <h2>How to Play</h2>
-            <ul>
-                <li><strong>OBJECTIVE:</strong> Score as many points as you can in 30 moves.</li>
-                <li><strong>HOW:</strong> Swap adjacent items to create a line of 3 or more matching items.</li>
-                <li><strong>SWAP:</strong> Click an item, then click an adjacent item to swap them.</li>
-            </ul>
-            <button id="help-close-button" class="game-button">Close</button>
+            <div style="text-align:left; line-height:1.5;">
+                <p><strong>Objective:</strong><hr>Score as many points as you can in 30 moves.</p>
+                <p><strong>Controls:</strong><hr>Click a tile, then click an adjacent tile to swap it.</p>
+                <p><strong>Scoring:</strong><hr>Create a line of 3 or more matching items to score. Bigger matches and cascades yield higher points.</p>
+                <p><strong>Tips:</strong><hr>Look for moves that set up cascades or create multiple matches at once.</p>
+            </div>
+            <div style="margin-top:16px;">
+                <button id="help-close-button" class="game-button">Close</button>
+            </div>
         </div>
     </div>
     <div id="settings-modal" class="modal">
         <div class="modal-content">
             <h2>Settings</h2>
-            <button id="sound-toggle-button" class="game-button">Sound: ON</button>
-            <br/><br/>
-            <button id="settings-close-button" class="game-button">Close</button>
+            <div class="settings-list" role="list">
+                <button id="sound-toggle-button" class="game-button setting-button" role="switch" aria-pressed="true" aria-label="Toggle sound">
+                    <span class="icon" id="sound-icon">🔊</span>
+                    <span class="label">Sound</span>
+                    <span class="state" id="sound-state">ON</span>
+                </button>
+                <button id="bgm-toggle-button" class="game-button setting-button" role="switch" aria-pressed="true" aria-label="Toggle background music">
+                    <span class="icon" id="bgm-icon">🎶</span>
+                    <span class="label">BGM</span>
+                    <span class="state" id="bgm-state">ON</span>
+                </button>
+            </div>
+            <div style="margin-top:16px;">
+                <button id="settings-close-button" class="game-button">Close</button>
+            </div>
         </div>
     </div>
 
@@ -312,6 +361,11 @@
             const settingsCloseButton = document.getElementById('settings-close-button');
             const modalRestartButton = document.getElementById('modal-restart-button');
             const soundToggleButton = document.getElementById('sound-toggle-button');
+            const bgmToggleButton = document.getElementById('bgm-toggle-button');
+            const soundIcon = document.getElementById('sound-icon');
+            const soundState = document.getElementById('sound-state');
+            const bgmIcon = document.getElementById('bgm-icon');
+            const bgmState = document.getElementById('bgm-state');
             
             // Modals
             const gameOverModal = document.getElementById('game-over-modal');
@@ -367,11 +421,26 @@
                 synths[type].triggerAttackRelease(note, duration, time);
             }
 
+            // Background music (looping) + BGM toggle
+            let bgmAudio;
+            let isBgmEnabled = true;
+            function setupBgm() {
+                bgmAudio = new Audio('music/retro-game-arcade.mp3');
+                bgmAudio.loop = true;
+                bgmAudio.volume = 0.45;
+                bgmAudio.load();
+            }
+            setupBgm();
+             
             // Game logic requires a user interaction to start audio context
             document.body.addEventListener('click', () => {
                 if (Tone.context.state !== 'running') {
                     Tone.context.resume();
                     setupSounds();
+                }
+                // start BGM on first user gesture (if enabled)
+                if (isBgmEnabled && bgmAudio) {
+                    bgmAudio.play().catch(() => {});
                 }
             }, { once: true });
 
@@ -782,9 +851,35 @@
             settingsCloseButton.addEventListener('click', () => settingsModal.style.display = 'none');
             soundToggleButton.addEventListener('click', () => {
                 isSoundEnabled = !isSoundEnabled;
-                soundToggleButton.textContent = `Sound: ${isSoundEnabled ? 'ON' : 'OFF'}`;
+                soundState.textContent = isSoundEnabled ? 'ON' : 'OFF';
+                soundIcon.textContent = isSoundEnabled ? '🔊' : '🔇';
                 soundToggleButton.classList.toggle('disabled', !isSoundEnabled);
+                soundToggleButton.setAttribute('aria-pressed', String(isSoundEnabled));
             });
+            
+            // BGM toggle: update icon + state, start/stop audio
+            bgmToggleButton.addEventListener('click', () => {
+                isBgmEnabled = !isBgmEnabled;
+                bgmState.textContent = isBgmEnabled ? 'ON' : 'OFF';
+                bgmIcon.textContent = isBgmEnabled ? '🎶' : '🔕';
+                bgmToggleButton.classList.toggle('disabled', !isBgmEnabled);
+                bgmToggleButton.setAttribute('aria-pressed', String(isBgmEnabled));
+                if (isBgmEnabled) {
+                    if (Tone.context.state !== 'running') Tone.context.resume();
+                    if (!bgmAudio) setupBgm();
+                    bgmAudio.play().catch(() => {});
+                } else {
+                    if (bgmAudio) bgmAudio.pause();
+                }
+            });
+            
+            // initialize the visual state to match variables
+            soundState.textContent = isSoundEnabled ? 'ON' : 'OFF';
+            soundIcon.textContent = isSoundEnabled ? '🔊' : '🔇';
+            soundToggleButton.setAttribute('aria-pressed', String(isSoundEnabled));
+            bgmState.textContent = isBgmEnabled ? 'ON' : 'OFF';
+            bgmIcon.textContent = isBgmEnabled ? '🎶' : '🔕';
+            bgmToggleButton.setAttribute('aria-pressed', String(isBgmEnabled));
 
 
             setupCanvas();
