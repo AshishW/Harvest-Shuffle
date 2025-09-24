@@ -317,6 +317,23 @@
             text-align: right;
             font-weight: bold;
         }
+
+        /* Prevent mobile "tap highlight" / selection effects on canvas and UI */
+        html, body, canvas, .game-container, .game-wrapper {
+            -webkit-tap-highlight-color: transparent; /* Android / Chrome */
+            -webkit-touch-callout: none;              /* iOS Safari — disable callout */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;                         /* prevent selection flash */
+            touch-action: manipulation;                /* reduce gesture delay, allow scroll */
+            outline: none;
+        }
+
+        /* Also ensure buttons don't show the default highlight */
+        .game-button {
+            -webkit-tap-highlight-color: transparent;
+        }
     </style>
 </head>
 <body>
